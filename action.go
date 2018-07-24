@@ -2,15 +2,16 @@ package goterraform
 
 import (
 	"os/exec"
-	"sort"
 	"strings"
 	"bufio"
 	"fmt"
+	"sort"
 )
 
-type TerraformActionI interface {
+type TerraformActionParams interface {
 	Opts() map[string][]string
 	OptsString() string
+	OptsStringSlice() []string
 }
 
 type TerraformAction struct {
@@ -20,10 +21,13 @@ type TerraformAction struct {
 	bin    *TerraformCli
 	opts   map[string]string
 	logs   *OutputLog
+	params TerraformActionParams
 }
 
 func (a *TerraformAction) Init() *TerraformAction {
-	a.Cmd = exec.Command(a.bin.path, a.action)
+	args := append([]string{a.action}, a.params.OptsStringSlice()...)
+	fmt.Printf("%s\n", args)
+	a.Cmd = exec.Command(a.bin.path, args...)
 	a.out = &TerraformOutput{}
 	return a
 }
@@ -90,16 +94,23 @@ func StringMapPtr(a map[string]string) *map[string]string {
 	return &a
 }
 
-func extractOptsString(p TerraformActionI) (options string) {
+func extractOptsStringSlice(p TerraformActionParams) (options []string) {
 	opts := p.Opts()
+	keys := mapStringSliceKeys(opts)
+	sort.Strings(keys)
+
 	outputs := make([]string, 0)
-	for key, value := range opts {
+	for _, key := range keys {
+		value := opts[key]
+		sort.Strings(value)
 		for _, val := range value {
 			output := "-" + key
 			if val != "" {
 				switch key {
 				case "var":
-					output = output + " '" + val + "'"
+					outputs = append(outputs, output)
+					outputs = append(outputs, "'"+val+"'")
+					continue
 				default:
 					output = output + "=" + val
 				}
@@ -107,6 +118,23 @@ func extractOptsString(p TerraformActionI) (options string) {
 			outputs = append(outputs, output)
 		}
 	}
-	sort.Strings(outputs)
-	return strings.Join(outputs, " ")
+	return outputs
+}
+
+func extractOptsString(p TerraformActionParams) (options string) {
+	return strings.Join(
+		extractOptsStringSlice(p),
+		" ",
+	)
+}
+
+func mapStringSliceKeys(s map[string][]string) (keys []string) {
+	keys = make([]string, len(s))
+
+	i := 0
+	for k := range s {
+		keys[i] = k
+		i++
+	}
+	return
 }

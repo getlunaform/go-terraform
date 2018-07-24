@@ -98,3 +98,7 @@ func (p *TerraformPlanParams) Opts() map[string][]string {
 func (p *TerraformPlanParams) OptsString() string {
 	return extractOptsString(p)
 }
+
+func (p *TerraformPlanParams) OptsStringSlice() []string {
+	return extractOptsStringSlice(p)
+}

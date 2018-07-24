@@ -27,15 +27,18 @@ func TestNewTerraformPlanParams(t *testing.T) {
 
 func TestTerraformPlanParams_Opts(t *testing.T) {
 	tests := []struct {
-		name       string
-		p          *TerraformPlanParams
-		want       map[string][]string
-		wantString string
+		name            string
+		p               *TerraformPlanParams
+		want            map[string][]string
+		wantString      string
+		wantStringSlice []string
 	}{
 		{
-			name: "base",
-			p:    &TerraformPlanParams{},
-			want: map[string][]string{},
+			name:            "base",
+			p:               &TerraformPlanParams{},
+			want:            map[string][]string{},
+			wantString:      "",
+			wantStringSlice: []string{},
 		},
 		{
 			name: "output",
@@ -45,7 +48,8 @@ func TestTerraformPlanParams_Opts(t *testing.T) {
 			want: map[string][]string{
 				"out": {"/mock/path"},
 			},
-			wantString: "-out=/mock/path",
+			wantString:      "-out=/mock/path",
+			wantStringSlice: []string{"-out=/mock/path"},
 		},
 		{
 			name: "1-target",
@@ -55,7 +59,8 @@ func TestTerraformPlanParams_Opts(t *testing.T) {
 			want: map[string][]string{
 				"target": {"mock-resource1"},
 			},
-			wantString: "-target=mock-resource1",
+			wantString:      "-target=mock-resource1",
+			wantStringSlice: []string{"-target=mock-resource1"},
 		},
 		{
 			name: "2-target",
@@ -65,7 +70,8 @@ func TestTerraformPlanParams_Opts(t *testing.T) {
 			want: map[string][]string{
 				"target": {"mock-resource1", "mock-resource2"},
 			},
-			wantString: "-target=mock-resource1 -target=mock-resource2",
+			wantString:      "-target=mock-resource1 -target=mock-resource2",
+			wantStringSlice: []string{"-target=mock-resource1", "-target=mock-resource2"},
 		},
 		{
 			name: "true-bool-ptr",
@@ -75,7 +81,8 @@ func TestTerraformPlanParams_Opts(t *testing.T) {
 			want: map[string][]string{
 				"lock": {"true"},
 			},
-			wantString: "-lock=true",
+			wantString:      "-lock=true",
+			wantStringSlice: []string{"-lock=true"},
 		},
 		{
 			name: "all",
@@ -111,15 +118,36 @@ func TestTerraformPlanParams_Opts(t *testing.T) {
 				"var":               {"foo=bar", "hello=world"},
 				"var-file":          {"vars1", "vars2"},
 			},
-			wantString: "-destroy -detailed-exitcode -input=false -lock-timeout=1s -lock=false -module-depth=2 " +
+			wantString: "-destroy -detailed-exitcode -input=false -lock=false -lock-timeout=1s -module-depth=2 " +
 				"-no-color -out=/mock/path -parallelism=2 -refresh=false -state=mock-statefile.tfstate " +
 				"-target=mock-resource1 -var 'foo=bar' -var 'hello=world' -var-file=vars1 -var-file=vars2",
+			wantStringSlice: []string{
+				"-destroy",
+				"-detailed-exitcode",
+				"-input=false",
+				"-lock=false",
+				"-lock-timeout=1s",
+				"-module-depth=2",
+				"-no-color",
+				"-out=/mock/path",
+				"-parallelism=2",
+				"-refresh=false",
+				"-state=mock-statefile.tfstate",
+				"-target=mock-resource1",
+				"-var",
+				"'foo=bar'",
+				"-var",
+				"'hello=world'",
+				"-var-file=vars1",
+				"-var-file=vars2",
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equal(t, tt.want, tt.p.Opts())
 			assert.Equal(t, tt.wantString, tt.p.OptsString())
+			assert.Equal(t, tt.wantStringSlice, tt.p.OptsStringSlice())
 		})
 	}
 }

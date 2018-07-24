@@ -1,8 +1,9 @@
 package goterraform
 
 type TerraformCli struct {
-	path    string
-	version string
+	path             string
+	version          string
+	workingDirectory string
 }
 
 // NewTerraformClient return a struct which behaves like the cli terraform client.
@@ -23,10 +24,11 @@ func NewTerraformClientWithBinPath(binPath string) *TerraformCli {
 	return cli
 }
 
-func (t *TerraformCli) Plan() *TerraformAction {
+func (t *TerraformCli) Plan(params *TerraformPlanParams) *TerraformAction {
 	return &TerraformAction{
 		action: "plan",
 		bin:    t,
+		params: params,
 	}
 }
 
@@ -39,4 +41,8 @@ func (t *TerraformCli) Apply() *TerraformAction {
 
 func (t *TerraformCli) fetchVersion() {
 	t.version = "dev"
+}
+func (client *TerraformCli) WithWorkingDirectory(workingDirectory string) (*TerraformCli) {
+	client.workingDirectory = workingDirectory
+	return client
 }

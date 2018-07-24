@@ -22,6 +22,10 @@ func NewOutputLogs() *OutputLog {
 	}
 }
 
+func (ol *OutputLog) Error(err error) *OutputLogEntry {
+	return ol.Stderr(err.Error())
+}
+
 func (ol *OutputLog) Stdout(message string) *OutputLogEntry {
 	return ol.Append(&OutputLogEntry{
 		Type:    STDOUT,
