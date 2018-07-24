@@ -2,8 +2,6 @@ package goterraform
 
 import (
 	"strconv"
-	"strings"
-	"sort"
 )
 
 type TerraformPlanParams struct {
@@ -96,23 +94,7 @@ func (p *TerraformPlanParams) Opts() map[string][]string {
 
 	return opts
 }
-func (p *TerraformPlanParams) OptsString() (options string) {
-	opts := p.Opts()
-	outputs := make([]string, 0)
-	for key, value := range opts {
-		for _, val := range value {
-			output := "-" + key
-			if val != "" {
-				switch key {
-				case "var":
-					output = output + " '" + val + "'"
-				default:
-					output = output + "=" + val
-				}
-			}
-			outputs = append(outputs, output)
-		}
-	}
-	sort.Strings(outputs)
-	return strings.Join(outputs, " ")
+
+func (p *TerraformPlanParams) OptsString() string {
+	return extractOptsString(p)
 }

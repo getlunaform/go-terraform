@@ -1,6 +1,9 @@
 package goterraform
 
-import "testing"
+import (
+	"testing"
+	"github.com/stretchr/testify/assert"
+)
 
 func TestTerraformAction_Run(t *testing.T) {
 	tests := []struct {
@@ -17,4 +20,9 @@ func TestTerraformAction_Run(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestTruePtr(t *testing.T) {
+	want := true
+	assert.Equal(t, &want, TruePtr())
 }

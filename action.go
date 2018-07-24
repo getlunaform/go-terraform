@@ -2,28 +2,64 @@ package goterraform
 
 import (
 	"os/exec"
-	"time"
+	"sort"
+	"strings"
+	"bufio"
+	"fmt"
 )
 
+type TerraformActionI interface {
+	Opts() map[string][]string
+	OptsString() string
+}
+
 type TerraformAction struct {
-	cmd    *exec.Cmd
+	Cmd    *exec.Cmd
 	out    *TerraformOutput
 	action string
 	bin    *TerraformCli
 	opts   map[string]string
+	logs   *OutputLog
+}
+
+func (a *TerraformAction) Init() *TerraformAction {
+	a.Cmd = exec.Command(a.bin.path, a.action)
+	a.out = &TerraformOutput{}
+	return a
 }
 
 func (a *TerraformAction) Run() (err error) {
-	a.cmd = exec.Command(a.bin.path + " " + a.action)
-	time.Sleep(1000 * time.Millisecond)
-	if a.out.Stderr, err = a.cmd.StderrPipe(); err != nil {
+
+	return a.Cmd.Start()
+}
+func (a *TerraformAction) InitLogger(log *OutputLog) (err error) {
+	a.logs = log
+
+	if a.out.Stdout, err = a.Cmd.StdoutPipe(); err != nil {
 		return
 	}
-	if a.out.Stdout, err = a.cmd.StdoutPipe(); err != nil {
+	if a.out.Stderr, err = a.Cmd.StderrPipe(); err != nil {
 		return
 	}
 
-	return a.cmd.Start()
+	scannerStdout := bufio.NewScanner(a.out.Stdout)
+	scannerStderr := bufio.NewScanner(a.out.Stderr)
+	go func() {
+		for scannerStdout.Scan() {
+			fmt.Print(
+				a.logs.Stdout(scannerStdout.Text()).String() + "\n",
+			)
+		}
+	}()
+
+	go func() {
+		for scannerStderr.Scan() {
+			fmt.Print(
+				a.logs.Stderr(scannerStderr.Text()).String() + "\n",
+			)
+		}
+	}()
+	return
 }
 
 func BoolPtr(a bool) *bool {
@@ -52,4 +88,25 @@ func StringSlicePtr(a []string) *[]string {
 
 func StringMapPtr(a map[string]string) *map[string]string {
 	return &a
+}
+
+func extractOptsString(p TerraformActionI) (options string) {
+	opts := p.Opts()
+	outputs := make([]string, 0)
+	for key, value := range opts {
+		for _, val := range value {
+			output := "-" + key
+			if val != "" {
+				switch key {
+				case "var":
+					output = output + " '" + val + "'"
+				default:
+					output = output + "=" + val
+				}
+			}
+			outputs = append(outputs, output)
+		}
+	}
+	sort.Strings(outputs)
+	return strings.Join(outputs, " ")
 }
