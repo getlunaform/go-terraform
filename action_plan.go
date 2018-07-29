@@ -1,24 +1,24 @@
 package goterraform
 
-import (
-	"strconv"
-)
+import "strconv"
 
 type TerraformPlanParams struct {
 	Destroy          bool
 	DetailedExitcode bool
-	Input            *bool
-	Lock             *bool
-	LockTimeout      int
-	ModuleDepth      *int
-	NoColor          bool
-	Out              *string
-	Parallelism      *int
-	Refresh          *bool
-	State            *string
-	Target           *[]string
-	Var              *map[string]string
-	VarFile          *[]string
+
+	Input       *bool
+	Lock        *bool
+	LockTimeout int
+	NoColor     bool
+
+	ModuleDepth *int
+	Out         *string
+	Parallelism *int
+	Refresh     *bool
+	State       *string
+	Target      *[]string
+	Var         *map[string]string
+	VarFile     *[]string
 }
 
 func NewTerraformPlanParams() *TerraformPlanParams {
