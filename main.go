@@ -29,6 +29,7 @@ func (t *TerraformCli) Plan(params *TerraformPlanParams) *TerraformAction {
 		action: "plan",
 		bin:    t,
 		params: params,
+		Dir:    t.workingDirectory,
 	}
 }
 
