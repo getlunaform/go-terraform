@@ -74,16 +74,17 @@ type OutputLogEntry struct {
 }
 
 func (ole *OutputLogEntry) String() string {
-	var prefix string
-	if ole.Type == STDERR {
-		prefix = color.RedString("[stderr]")
-	} else if ole.Type == STDOUT {
-		prefix = "[stdout]"
-	}
-
 	tags := ""
 	for _, tag := range ole.Tags {
 		tags = tags + "[" + tag + "]"
+	}
+
+	var prefix string
+	if ole.Type == STDERR {
+		prefix = color.RedString("[stderr]")
+		tags = color.RedString(tags)
+	} else if ole.Type == STDOUT {
+		prefix = "[stdout]"
 	}
 
 	return fmt.Sprintf("%s%s %s", prefix, tags, ole.Content)
