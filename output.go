@@ -27,7 +27,7 @@ func (ol *OutputLog) Error(err error) *OutputLogEntry {
 }
 
 func (ol *OutputLog) Stdout(message string) *OutputLogEntry {
-	return ol.StdoutWithTags(message, []string{})
+	return ol.StdoutWithTags(message, []string{"tf"})
 }
 
 func (ol *OutputLog) StdoutWithTags(message string, tags []string) *OutputLogEntry {
@@ -39,7 +39,7 @@ func (ol *OutputLog) StdoutWithTags(message string, tags []string) *OutputLogEnt
 }
 
 func (ol *OutputLog) Stderr(message string) *OutputLogEntry {
-	return ol.StderrWithTags(message, []string{})
+	return ol.StderrWithTags(message, []string{"tf"})
 }
 
 func (ol *OutputLog) StderrWithTags(message string, tags []string) *OutputLogEntry {
