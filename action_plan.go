@@ -36,7 +36,7 @@ func (p *TerraformPlanParams) Opts() map[string][]string {
 		opts["detailed-exitcode"] = []string{""}
 	}
 
-	if p.Input != nil && *p.Lock == false {
+	if p.Input != nil && *p.Input == false {
 		opts["input"] = []string{"false"}
 	}
 
