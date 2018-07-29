@@ -16,6 +16,7 @@ type TerraformActionParams interface {
 
 type TerraformAction struct {
 	Cmd    *exec.Cmd
+	Dir    string
 	out    *TerraformOutput
 	action string
 	bin    *TerraformCli
@@ -28,26 +29,26 @@ func (a *TerraformAction) Init() *TerraformAction {
 	args := append([]string{a.action}, a.params.OptsStringSlice()...)
 	fmt.Printf("%s\n", args)
 	a.Cmd = exec.Command(a.bin.path, args...)
+	if a.Dir != "" {
+		a.Cmd.Dir = a.Dir
+	}
 	a.out = &TerraformOutput{}
 	return a
 }
 
+// Run the terraform command
 func (a *TerraformAction) Run() (err error) {
-
 	return a.Cmd.Start()
 }
+
 func (a *TerraformAction) InitLogger(log *OutputLog) (err error) {
 	a.logs = log
 
+	// Configure stdout capture
 	if a.out.Stdout, err = a.Cmd.StdoutPipe(); err != nil {
 		return
 	}
-	if a.out.Stderr, err = a.Cmd.StderrPipe(); err != nil {
-		return
-	}
-
 	scannerStdout := bufio.NewScanner(a.out.Stdout)
-	scannerStderr := bufio.NewScanner(a.out.Stderr)
 	go func() {
 		for scannerStdout.Scan() {
 			fmt.Print(
@@ -56,6 +57,11 @@ func (a *TerraformAction) InitLogger(log *OutputLog) (err error) {
 		}
 	}()
 
+	// Configure stderr capture
+	if a.out.Stderr, err = a.Cmd.StderrPipe(); err != nil {
+		return
+	}
+	scannerStderr := bufio.NewScanner(a.out.Stderr)
 	go func() {
 		for scannerStderr.Scan() {
 			fmt.Print(
@@ -63,6 +69,7 @@ func (a *TerraformAction) InitLogger(log *OutputLog) (err error) {
 			)
 		}
 	}()
+
 	return
 }
 

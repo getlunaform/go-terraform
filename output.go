@@ -27,16 +27,26 @@ func (ol *OutputLog) Error(err error) *OutputLogEntry {
 }
 
 func (ol *OutputLog) Stdout(message string) *OutputLogEntry {
+	return ol.StdoutWithTags(message, []string{})
+}
+
+func (ol *OutputLog) StdoutWithTags(message string, tags []string) *OutputLogEntry {
 	return ol.Append(&OutputLogEntry{
 		Type:    STDOUT,
 		Content: message,
+		Tags:    tags,
 	})
 }
 
 func (ol *OutputLog) Stderr(message string) *OutputLogEntry {
+	return ol.StderrWithTags(message, []string{})
+}
+
+func (ol *OutputLog) StderrWithTags(message string, tags []string) *OutputLogEntry {
 	return ol.Append(&OutputLogEntry{
 		Type:    STDERR,
 		Content: message,
+		Tags:    tags,
 	})
 }
 
@@ -58,8 +68,9 @@ type OutputLog struct {
 }
 
 type OutputLogEntry struct {
-	Type    string `json:"type"`
-	Content string `json:"content"`
+	Type    string   `json:"type"`
+	Content string   `json:"content"`
+	Tags    []string `json:"prefix"`
 }
 
 func (ole *OutputLogEntry) String() string {
@@ -69,5 +80,11 @@ func (ole *OutputLogEntry) String() string {
 	} else if ole.Type == STDOUT {
 		prefix = "[stdout]"
 	}
-	return fmt.Sprintf("%s %s", prefix, ole.Content)
+
+	tags := ""
+	for _, tag := range ole.Tags {
+		tags = tags + "[" + tag + "]"
+	}
+
+	return fmt.Sprintf("%s%s %s", prefix, tags, ole.Content)
 }
