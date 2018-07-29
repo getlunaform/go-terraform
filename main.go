@@ -33,10 +33,20 @@ func (t *TerraformCli) Plan(params *TerraformPlanParams) *TerraformAction {
 	}
 }
 
+func (t *TerraformCli) Init(params *TerraformInitParams) *TerraformAction {
+	return &TerraformAction{
+		action: "init",
+		bin:    t,
+		params: params,
+		Dir:    t.workingDirectory,
+	}
+}
+
 func (t *TerraformCli) Apply() *TerraformAction {
 	return &TerraformAction{
 		action: "apply",
 		bin:    t,
+		Dir:    t.workingDirectory,
 	}
 }
 

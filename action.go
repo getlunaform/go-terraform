@@ -25,7 +25,7 @@ type TerraformAction struct {
 	params TerraformActionParams
 }
 
-func (a *TerraformAction) Init() *TerraformAction {
+func (a *TerraformAction) Initialise() *TerraformAction {
 	args := append([]string{a.action}, a.params.OptsStringSlice()...)
 	fmt.Printf("%s\n", args)
 	a.Cmd = exec.Command(a.bin.path, args...)
