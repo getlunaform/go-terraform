@@ -16,9 +16,9 @@ type TerraformPlanParams struct {
 	Parallelism *int
 	Refresh     *bool
 	State       *string
-	Target      *[]string
-	Var         *map[string]string
-	VarFile     *[]string
+	Target      []*string
+	Var         map[string]string
+	VarFile     []*string
 }
 
 func NewTerraformPlanParams() *TerraformPlanParams {
