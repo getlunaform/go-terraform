@@ -77,19 +77,19 @@ func (p *TerraformPlanParams) Opts() map[string][]string {
 	}
 
 	if p.Target != nil {
-		opts["target"] = *p.Target
+		opts["target"] = StringSlice(p.Target)
 	}
 
 	if p.Var != nil {
 		vars := []string{}
-		for key, value := range *p.Var {
+		for key, value := range p.Var {
 			vars = append(vars, key+"="+value)
 		}
 		opts["var"] = vars
 	}
 
 	if p.VarFile != nil {
-		opts["var-file"] = *p.VarFile
+		opts["var-file"] = StringSlice(p.VarFile)
 	}
 
 	return opts

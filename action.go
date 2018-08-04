@@ -93,8 +93,12 @@ func IntPtr(a int) *int {
 	return &a
 }
 
-func StringSlicePtr(a []string) *[]string {
-	return &a
+func StringSlice(a []*string) (o []string) {
+	o = make([]string, len(a))
+	for i, e := range a {
+		o[i] = *e
+	}
+	return
 }
 
 func StringMapPtr(a map[string]string) *map[string]string {
